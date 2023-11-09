@@ -8,7 +8,9 @@ export default class Model {
     record(data) {
         this.$collection.push(...data);
     }
-    all() {}
+    all() {
+        return this.$collection.map((entry) => Object.assign({}, entry));
+    }
     update() {}
     find() {}
 }
