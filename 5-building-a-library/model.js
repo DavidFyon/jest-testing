@@ -1,15 +1,17 @@
 export default class Model {
-    constructor(data = []) {
+    constructor(options = {}) {
+        const data = options.data || [];
+        delete options.data;
         this.$collection = [];
+        this.$options = Object.assign({ primaryKey: 'id' }, options);
 
         if (data.length) this.record(data);
     }
 
     record(data) {
-        const primaryKey = 'id';
         const mappedData = data.map((entry) => {
-            if (entry[primaryKey]) return entry;
-            entry[primaryKey] = Date.now();
+            if (entry[this.$options.primaryKey]) return entry;
+            entry[this.$options.primaryKey] = Date.now();
             return entry;
         });
         this.$collection.push(...mappedData);
@@ -19,9 +21,8 @@ export default class Model {
     }
 
     update(key, data) {
-        const primaryKey = 'id';
         const index = this.$collection.findIndex(
-            (entry) => entry[primaryKey] === key
+            (entry) => entry[this.$options.primaryKey] === key
         );
         if (index < 0) return false;
         this.$collection.splice(
@@ -31,10 +32,16 @@ export default class Model {
         );
     }
 
+    remove(key) {
+        const index = this.$collection.findIndex(
+            (entry) => entry[this.$options.primaryKey] === key
+        );
+        if (index >= 0) this.$collection.splice(index, 1);
+    }
+
     find(key) {
-        const primaryKey = 'id';
         const entry = this.$collection.find(
-            (entry) => entry[primaryKey] === key
+            (entry) => entry[this.$options.primaryKey] === key
         );
 
         return entry ? Object.assign({}, entry) : null;
